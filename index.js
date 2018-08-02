@@ -3,6 +3,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+
 import {
   StyleSheet,
   Dimensions,
@@ -12,11 +13,14 @@ import {
   View,
   Text,
   Platform,
-  PermissionsAndroid
+  PermissionsAndroid,
+  Image, AlertIOS,TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 
 import Permissions from 'react-native-permissions'
 import { RNCamera as Camera } from 'react-native-camera'
+import {trans2xPt2Dp} from "../../app/common/ScreenUtils";
 
 const PERMISSION_AUTHORIZED = 'authorized';
 const CAMERA_PERMISSION = 'camera';
@@ -24,6 +28,7 @@ const CAMERA_PERMISSION = 'camera';
 export default class QRCodeScanner extends Component {
   static propTypes = {
     onRead: PropTypes.func.isRequired,
+    myProps:  PropTypes.any.isRequired,
     reactivate: PropTypes.bool,
     reactivateTimeout: PropTypes.number,
     fadeIn: PropTypes.bool,
@@ -46,10 +51,13 @@ export default class QRCodeScanner extends Component {
     permissionDialogTitle: PropTypes.string,
     permissionDialogMessage: PropTypes.string,
     checkAndroid6Permissions: PropTypes.bool,
+    onBackPre: PropTypes.func.isRequired,
+    toggleFlashSwitch: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     onRead: () => (console.log('QR code scanned!')),
+    onBackPre: () => (console.log('GO BACK!')),
     reactivate: false,
     reactivateTimeout: 0,
     fadeIn: true,
@@ -92,7 +100,7 @@ export default class QRCodeScanner extends Component {
     super(props);
     this.state = {
       scanning: false,
-      fadeInOpacity: new Animated.Value(0),
+      fadeInOpacity: new Animated.Value(40),
       isAuthorized: false,
       isAuthorizationChecked: false,
     }
@@ -110,8 +118,8 @@ export default class QRCodeScanner extends Component {
       });
     } else if (Platform.OS === 'android' && this.props.checkAndroid6Permissions) {
       PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA, {
-          'title': this.props.permissionDialogTitle,
-          'message':  this.props.permissionDialogMessage,
+        'title': this.props.permissionDialogTitle,
+        'message':  this.props.permissionDialogMessage,
       })
         .then((granted) => {
           const isAuthorized = Platform.Version >= 23 ?
@@ -177,12 +185,52 @@ export default class QRCodeScanner extends Component {
       } else {
         return (
           <View style={styles.rectangleContainer}>
-            <View style={styles.rectangle} />
+            <View style={styles.topOp}/>
+            <View style={styles.midOp}>
+              <View style={styles.midLeftOp}/>
+              <ImageBackground style={styles.rectangle}
+                               source={require('../../app/images/wifi/pic_wifi_scan.png')}
+              />
+              <View style={styles.midRightOp}/>
+            </View>
+            <View style={styles.bomOp}>
+              <TouchableOpacity onPress={()=>this.flashSwitch()}>
+                <Image
+                  style={{height: trans2xPt2Dp(42), width: trans2xPt2Dp(42),}}
+                  source={require('../../app/images/wifi/flashlight.png')}
+                />
+              </TouchableOpacity>
+
+              <Text
+                style={{fontSize:trans2xPt2Dp(14),marginTop:trans2xPt2Dp(10),color:'white'}}
+              >
+                打开手电筒
+              </Text>
+
+              <TouchableOpacity
+                onPress={()=>this.goBackLast()}>
+                <Image
+                  style={{height: trans2xPt2Dp(20), width: trans2xPt2Dp(20),marginTop:trans2xPt2Dp(44)}}
+                  source={require('../../app/images/wifi/iconClose.png')}
+                />
+              </TouchableOpacity>
+
+
+
+            </View>
           </View>
         );
       }
     }
     return null;
+  }
+
+  flashSwitch=()=>{
+    this.props.toggleFlashSwitch();
+  }
+
+  goBackLast=()=>{
+    this.props.onBackPre();
   }
 
   _renderCamera() {
@@ -194,12 +242,13 @@ export default class QRCodeScanner extends Component {
           <Animated.View
             style={{
               opacity: this.state.fadeInOpacity,
-              backgroundColor: 'transparent'
+              backgroundColor: 'black'
             }}>
-            <Camera 
-              style={[styles.camera, this.props.cameraStyle]} 
+            <Camera
+              style={[styles.camera, this.props.cameraStyle]}
               onBarCodeRead={this._handleBarCodeRead.bind(this)}
               type={this.props.cameraType}
+              flashMode={this.props.flashMode}
             >
               {this._renderCameraMarker()}
             </Camera>
@@ -232,7 +281,9 @@ export default class QRCodeScanner extends Component {
         <View style={[styles.infoView, this.props.topViewStyle]}>
           {this._renderTopContent()}
         </View>
+
         {this._renderCamera()}
+
         <View style={[styles.infoView, this.props.bottomViewStyle]}>
           {this._renderBottomContent()}
         </View>
@@ -244,6 +295,8 @@ export default class QRCodeScanner extends Component {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1
+
+
   },
   infoView: {
     flex: 2,
@@ -266,13 +319,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
+    height: Dimensions.get('window').width,
+    width: Dimensions.get('window').width,
   },
 
   rectangle: {
-    height: 250,
-    width: 250,
-    borderWidth: 2,
-    borderColor: '#00FF00',
-    backgroundColor: 'transparent',
+    height: trans2xPt2Dp(236),
+    width: trans2xPt2Dp(236),
+
   },
+
+  topOp: {
+    flex: 0.5,
+    width: Dimensions.get('window').width,
+    opacity: 0.5,
+    backgroundColor:'black',
+
+  },
+
+  midOp: {
+    flexDirection:'row',
+    width: Dimensions.get('window').width,
+    height: trans2xPt2Dp(236),
+  },
+
+  midLeftOp: {
+    width:((Dimensions.get('window').width)-trans2xPt2Dp(236))/2,
+    height: trans2xPt2Dp(236),
+    flex: 1,
+    opacity: 0.5,
+    backgroundColor:'black',
+
+  },
+
+  midRightOp: {
+    width:((Dimensions.get('window').width)-trans2xPt2Dp(236))/2,
+    flex: 1,
+    opacity: 0.5,
+    backgroundColor:'black',
+    height: trans2xPt2Dp(236),
+  },
+
+  bomOp: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 0.5,
+    width: Dimensions.get('window').width,
+    opacity: 0.5,
+    backgroundColor:'black',
+  },
+
+
 })
