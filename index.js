@@ -135,6 +135,8 @@ export default class QRCodeScanner extends Component {
 
 
   componentDidMount() {
+    console.log('screen:'+Dimensions.get('screen').height+'window:'+Dimensions.get('window').height)
+
     if (this.props.fadeIn) {
       Animated.sequence([
         Animated.delay(1000),
@@ -277,15 +279,17 @@ export default class QRCodeScanner extends Component {
 
   render() {
     return (
-      <View style={[styles.mainContainer, this.props.containerStyle]}>
-        <View style={[styles.infoView, this.props.topViewStyle]}>
-          {this._renderTopContent()}
-        </View>
+      <View style={{width:Dimensions.get('window').width,height:1000,backgroundColor:'black'}}>
+        <View style={[styles.mainContainer, this.props.containerStyle]}>
+          <View style={[styles.infoView, this.props.topViewStyle]}>
+            {this._renderTopContent()}
+          </View>
 
-        {this._renderCamera()}
+          {this._renderCamera()}
 
-        <View style={[styles.infoView, this.props.bottomViewStyle]}>
-          {this._renderBottomContent()}
+          <View style={[styles.infoView, this.props.bottomViewStyle]}>
+            {this._renderBottomContent()}
+          </View>
         </View>
       </View>
     )
