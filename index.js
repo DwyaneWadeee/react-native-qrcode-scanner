@@ -189,7 +189,7 @@ export default class QRCodeScanner extends Component {
           <View style={styles.rectangleContainer}>
 
             <View style={styles.topOp}>
-              <Text style={{color:'#FEBD2F',textAlign:'center',fontSize:30,position:'relative',top:150}}>请连接场内WiFi并扫描PartyUp二维码以连接WiFi</Text>
+              <Text style={{color:'#FEBD2F',textAlign:'center',fontSize:30,position:'relative',top:100}}>请连接场内WiFi并扫描PartyUp二维码以连接WiFi</Text>
             </View>
 
             <View style={styles.midOp}>
