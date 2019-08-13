@@ -103,9 +103,21 @@ export default class QRCodeScanner extends Component {
       fadeInOpacity: new Animated.Value(40),
       isAuthorized: false,
       isAuthorizationChecked: false,
+      animatedValue: new Animated.Value(0),
     }
 
     this._handleBarCodeRead = this._handleBarCodeRead.bind(this);
+
+
+    this.scrollAnimated = Animated.timing(
+      this.state.animatedValue,
+      {
+        toValue: 1,
+        duration: 2500,
+        easing: Easing.in,
+
+      }
+    );
   }
 
   componentWillMount() {
@@ -149,6 +161,14 @@ export default class QRCodeScanner extends Component {
         )
       ]).start();
     }
+
+    // this.scrollAnimated.start(() => this.state.animatedValue.setValue(0));
+    this.startAnimated();
+  }
+
+  startAnimated() {
+    this.state.animatedValue.setValue(0);
+    this.scrollAnimated.start(() => this.startAnimated());
   }
 
   _setScanning(value) {
@@ -181,6 +201,12 @@ export default class QRCodeScanner extends Component {
   }
 
   _renderCameraMarker() {
+    const heightValue = this.state.animatedValue.interpolate({
+      inputRange: [0,1],
+      outputRange: [0, trans2xPt2Dp(236)]
+    });
+
+
     if (this.props.showMarker) {
       if (this.props.customMarker) {
         return this.props.customMarker;
@@ -189,14 +215,17 @@ export default class QRCodeScanner extends Component {
           <View style={styles.rectangleContainer}>
 
             <View style={styles.topOp}>
-              <Text style={{color:'#FEBD2F',textAlign:'center',fontSize:30,position:'relative',top:100}}>请连接场内WiFi并扫描PartyUp二维码以连接WiFi</Text>
+              <Text style={{color:'#EFE300',textAlign:'center',fontSize:30,position:'relative',top:100}}>请连接场内WiFi并扫描PartyUp二维码以连接WiFi</Text>
             </View>
 
             <View style={styles.midOp}>
               <View style={styles.midLeftOp}/>
-              <ImageBackground style={styles.rectangle}
-                               source={require('../../app/images/wifi/pic_wifi_scan.png')}
-              />
+              <View >
+                <ImageBackground style={styles.rectangle}
+                                 source={require('../../app/images/wifi/pic_wifi_scan.png')}
+                />
+                <Animated.View style={{backgroundColor:'#EFE300',height:1,width:trans2xPt2Dp(195),position:'absolute',left:trans2xPt2Dp(20),top:heightValue}}/>
+              </View>
               <View style={styles.midRightOp}/>
             </View>
             <View style={styles.bomOp}>
