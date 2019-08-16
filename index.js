@@ -14,8 +14,8 @@ import {
   Text,
   Platform,
   PermissionsAndroid,
-  Image, AlertIOS,TouchableOpacity,
-  ImageBackground,
+  Image, AlertIOS, TouchableOpacity,
+  ImageBackground, StatusBar,
 } from 'react-native';
 
 import Permissions from 'react-native-permissions'
@@ -280,7 +280,7 @@ export default class QRCodeScanner extends Component {
               backgroundColor: 'black'
             }}>
             <Camera
-              style={[styles.camera, this.props.cameraStyle]}
+              style={[styles.camera, {}]}
               onBarCodeRead={this._handleBarCodeRead.bind(this)}
               type={this.props.cameraType}
               flashMode={this.props.flashMode}
@@ -312,7 +312,7 @@ export default class QRCodeScanner extends Component {
 
   render() {
     return (
-      <View style={{width:Dimensions.get('window').width,height:1000,backgroundColor:'black'}}>
+      <View style={{width:Dimensions.get('window').width,height:Dimensions.get('screen').height,backgroundColor:'black'}}>
         <View style={[styles.mainContainer, this.props.containerStyle]}>
           <View style={[styles.infoView, this.props.topViewStyle]}>
             {this._renderTopContent()}
@@ -347,8 +347,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
-    height: Dimensions.get('window').width,
-    width: Dimensions.get('window').width,
+    width:Dimensions.get('window').width,
+    ...Platform.select({
+      ios: {
+        height:Dimensions.get('screen').height,
+      },
+      android: {
+        height:Dimensions.get('screen').height+StatusBar.currentHeight,
+      },
+    }),
   },
 
   rectangleContainer: {
